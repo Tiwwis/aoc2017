@@ -7,21 +7,22 @@ fn parse_input(s: DayString) -> Square {
     s.parse().unwrap()
 }
 
-fn next_odd_root(sq:Square) -> i32 {
+fn next_odd_root(sq: Square) -> i32 {
     let next_root = f64::from(sq).sqrt().ceil() as i32;
     next_root + 1 - (next_root % 2)
 }
 
-fn distance(sq:Square) -> i32 {
-    if sq == 1 { return 0 }
+fn distance(sq: Square) -> i32 {
+    if sq == 1 {
+        return 0;
+    }
     let next_root = next_odd_root(sq);
-    let ring = next_root/2;
+    let ring = next_root / 2;
 
     let ring_end = next_root.pow(2);
-    let circ_order = (ring_end - sq) % (2*ring);
+    let circ_order = (ring_end - sq) % (2 * ring);
     ring + (circ_order - ring).abs()
 }
-
 
 fn solve_part1(square: Square) -> i32 {
     distance(square)
@@ -55,7 +56,5 @@ mod tests {
     }
 
     #[test]
-    fn test_part2() {
-    }
+    fn test_part2() {}
 }
-

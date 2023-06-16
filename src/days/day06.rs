@@ -1,19 +1,33 @@
 use crate::helpers;
 use crate::helpers::{DayString, Solution};
 
-use std::collections::hash_map::{HashMap, Entry::{Vacant, Occupied}};
+use std::collections::hash_map::{
+    Entry::{Occupied, Vacant},
+    HashMap,
+};
 
 type Memory = Vec<u8>;
 type Visited = HashMap<Memory, usize>;
 
 fn parse_input(s: DayString) -> Memory {
-    let mut mem:Memory = s.trim().split(char::is_whitespace).map(str::parse).flatten().collect();
+    let mut mem: Memory = s
+        .trim()
+        .split(char::is_whitespace)
+        .map(str::parse)
+        .flatten()
+        .collect();
     mem.shrink_to_fit();
     mem
 }
 
-fn redistribute(mem:&mut Memory) {
-    let max_ind = mem.iter().copied().enumerate().max_by_key(|&(i,n)| (n, -(i as i8))).unwrap().0;
+fn redistribute(mem: &mut Memory) {
+    let max_ind = mem
+        .iter()
+        .copied()
+        .enumerate()
+        .max_by_key(|&(i, n)| (n, -(i as i8)))
+        .unwrap()
+        .0;
     let mem_len = mem.len();
     let n = mem_len as u8;
     let k = mem[max_ind];
@@ -22,9 +36,9 @@ fn redistribute(mem:&mut Memory) {
     let rem = (k % n) as usize;
 
     mem[max_ind] = 0;
-    
+
     (0..mem.len()).for_each(|i| mem[i] += add);
-    (max_ind+1 .. max_ind+1+rem).for_each(|i| mem[i % mem_len] += 1);
+    (max_ind + 1..max_ind + 1 + rem).for_each(|i| mem[i % mem_len] += 1);
 }
 
 fn solve_day(input: &Memory) -> (usize, usize) {
@@ -68,4 +82,3 @@ mod tests {
         assert_eq!(solve_day(&input).1, 4);
     }
 }
-

@@ -3,16 +3,16 @@ use crate::helpers::{DayString, Solution};
 
 type Spreadsheet = Vec<Vec<u32>>;
 fn parse_input(s: DayString) -> Spreadsheet {
-
-    fn parse_line(line:&str) -> Vec<u32> {
-        line.split(char::is_whitespace).map(|x| x.parse().unwrap()).collect()
+    fn parse_line(line: &str) -> Vec<u32> {
+        line.split(char::is_whitespace)
+            .map(|x| x.parse().unwrap())
+            .collect()
     }
 
     s.lines().map(parse_line).collect()
 }
 
 fn solve_part1(sheet: &Spreadsheet) -> u32 {
-
     fn row_diff(row: &Vec<u32>) -> Option<u32> {
         let max = row.iter().max()?;
         let min = row.iter().min()?;
@@ -23,15 +23,16 @@ fn solve_part1(sheet: &Spreadsheet) -> u32 {
 }
 
 fn solve_part2(sheet: &Spreadsheet) -> u32 {
-
     fn row_diff(row: &Vec<u32>) -> Option<u32> {
         let n = row.len();
         for i in 0..n {
-            for j in i+1..n {
+            for j in i + 1..n {
                 let n = row[i];
                 let m = row[j];
-                let (n, m) = (u32::max(n,m), u32::min(n,m));
-                if (n % m) == 0 { return Some(n/m) }
+                let (n, m) = (u32::max(n, m), u32::min(n, m));
+                if (n % m) == 0 {
+                    return Some(n / m);
+                }
             }
         }
         None
@@ -57,13 +58,13 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        let ex1:Spreadsheet = parse_input(helpers::read_example("02"));
+        let ex1: Spreadsheet = parse_input(helpers::read_example("02"));
         assert_eq!(solve_part1(&ex1), 18);
     }
 
     #[test]
     fn test_part2() {
-        let ex1:Spreadsheet = parse_input(helpers::read_example("02"));
+        let ex1: Spreadsheet = parse_input(helpers::read_example("02"));
         assert_eq!(solve_part2(&ex1), 9);
     }
 }

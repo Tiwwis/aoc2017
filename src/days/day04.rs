@@ -8,22 +8,21 @@ fn parse_input(s: DayString) -> Input {
     s.lines().map(|l| l.trim().split(' ').collect()).collect()
 }
 
-fn no_duplicates<T: AsRef<str>>(phrase:&Vec<T>) -> bool {
-    let mut new_phrase:Vec<&str> = phrase.iter().map(T::as_ref).collect();
+fn no_duplicates<T: AsRef<str>>(phrase: &Vec<T>) -> bool {
+    let mut new_phrase: Vec<&str> = phrase.iter().map(T::as_ref).collect();
     new_phrase.sort_unstable();
     new_phrase.dedup();
     new_phrase.len() == phrase.len()
 }
 
-fn anagram_free(phrase:&PassPhrase) -> bool {
-
-    fn word_order(word:&str) -> String {
-        let mut new_word:Vec<char> = word.chars().collect();
+fn anagram_free(phrase: &PassPhrase) -> bool {
+    fn word_order(word: &str) -> String {
+        let mut new_word: Vec<char> = word.chars().collect();
         new_word.sort();
         new_word.into_iter().collect()
     }
 
-    let new_words:Vec<String> = phrase.iter().copied().map(word_order).collect();
+    let new_words: Vec<String> = phrase.iter().copied().map(word_order).collect();
     no_duplicates(&new_words)
 }
 
@@ -62,4 +61,3 @@ mod tests {
         assert_eq!(solve_part2(&input), 3);
     }
 }
-

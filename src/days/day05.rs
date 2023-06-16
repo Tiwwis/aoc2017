@@ -9,19 +9,19 @@ fn parse_input(s: DayString) -> Program {
 
 fn solve_part1(input: &Program) -> usize {
     let mut program = input.clone();
-    let mut pointer:i32 = 0;
+    let mut pointer: i32 = 0;
     let mut counter = 0;
     while let Some(offset) = program.get_mut(pointer as usize) {
         counter += 1;
         pointer += *offset;
         *offset += 1;
-    };
+    }
     counter
 }
 
 fn solve_part2(input: &Program) -> usize {
     let mut program = input.clone();
-    let mut pointer:i32 = 0;
+    let mut pointer: i32 = 0;
     let mut counter = 0;
     while let Some(offset) = program.get_mut(pointer as usize) {
         counter += 1;
@@ -31,7 +31,7 @@ fn solve_part2(input: &Program) -> usize {
         } else {
             *offset += 1
         }
-    };
+    }
     counter
 }
 
@@ -62,4 +62,3 @@ mod tests {
         assert_eq!(solve_part2(&input), 10);
     }
 }
-
