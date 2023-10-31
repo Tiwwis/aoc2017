@@ -37,7 +37,7 @@ fn solve_string(s: DayString) -> Solution {
 }
 
 pub fn solve() -> Solution {
-    solve_string(&helpers::read_day(1))
+    solve_string(helpers::read_day(1))
 }
 
 #[cfg(test)]

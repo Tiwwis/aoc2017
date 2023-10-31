@@ -51,6 +51,10 @@ fn get_day_solver(day: u8) -> Option<fn() -> Solution> {
         12 => Some(day12::solve),
         13 => Some(day13::solve),
         14 => Some(day14::solve),
+        15 => Some(day15::solve),
+        16 => Some(day16::solve),
+        17 => Some(day17::solve),
+        18 => Some(day18::solve),
         _ => None,
     }
 }

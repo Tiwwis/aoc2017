@@ -4,7 +4,7 @@ use crate::helpers::{DayString, Solution};
 type Program = Vec<i32>;
 
 fn parse_input(s: DayString) -> Program {
-    s.lines().map(str::parse).flatten().collect()
+    s.lines().flat_map(str::parse).collect()
 }
 
 fn solve_part1(input: &Program) -> usize {

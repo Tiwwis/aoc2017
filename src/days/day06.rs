@@ -13,8 +13,7 @@ fn parse_input(s: DayString) -> Memory {
     let mut mem: Memory = s
         .trim()
         .split(char::is_whitespace)
-        .map(str::parse)
-        .flatten()
+        .flat_map(str::parse)
         .collect();
     mem.shrink_to_fit();
     mem

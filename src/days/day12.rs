@@ -8,14 +8,20 @@ type Graph = Vec<Vec<Node>>;
 fn parse_input(s: DayString) -> Graph {
     let re = Regex::new(r"(?m)^(\d+) <-> ((?:\d+(?:, )?)*)$").unwrap();
     let mut all = Vec::new();
-    for cap in re.captures_iter(s) { 
-        let neighbs = cap.get(2).unwrap().as_str().split(", ").map(|x| x.parse().unwrap()).collect();
+    for cap in re.captures_iter(s) {
+        let neighbs = cap
+            .get(2)
+            .unwrap()
+            .as_str()
+            .split(", ")
+            .map(|x| x.parse().unwrap())
+            .collect();
         all.push(neighbs);
     }
     all
 }
 
-fn dfs(g:&Graph, s:Node, found:&mut [bool]) {
+fn dfs(g: &Graph, s: Node, found: &mut [bool]) {
     found[s] = true;
     for nb in &g[s] {
         if !found[*nb] {
@@ -35,7 +41,10 @@ fn solve_part2(graph: &Graph) -> usize {
     let mut found = vec![false; n];
     let mut counter = 0;
     for i in 0..n {
-        if !found[i] { dfs(graph, i, &mut found); counter += 1 }
+        if !found[i] {
+            dfs(graph, i, &mut found);
+            counter += 1
+        }
     }
     counter
 }
@@ -50,21 +59,3 @@ fn solve_string(s: DayString) -> Solution {
 pub fn solve() -> Solution {
     solve_string(helpers::read_day(12))
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_part1() {
-        let input = parse_input(helpers::read_example("xxx"));
-        assert_eq!(solve_part1(&input), 2);
-    }
-
-    #[test]
-    fn test_part2() {
-        let input = parse_input(helpers::read_example("xxx"));
-        assert_eq!(solve_part2(&input), 3);
-    }
-}
-

@@ -9,21 +9,23 @@ enum HexStep {
     SE,
     S,
     SW,
-    NW
+    NW,
 }
 
 struct HexCoord(i32, i32);
 
 fn parse_input(s: DayString) -> Path {
-    s.split(',').map(|s| match s {
-        "n"  => HexStep::N,
-        "ne" => HexStep::NE,
-        "se" => HexStep::SE,
-        "s"  => HexStep::S,
-        "sw" => HexStep::SW,
-        "nw" => HexStep::NW,
-        _ => panic!("Unknown step")
-    }).collect()
+    s.split(',')
+        .map(|s| match s {
+            "n" => HexStep::N,
+            "ne" => HexStep::NE,
+            "se" => HexStep::SE,
+            "s" => HexStep::S,
+            "sw" => HexStep::SW,
+            "nw" => HexStep::NW,
+            _ => panic!("Unknown step"),
+        })
+        .collect()
 }
 
 impl HexCoord {
@@ -31,18 +33,24 @@ impl HexCoord {
         HexCoord(0, 0)
     }
 
-    fn step(&mut self, step:&HexStep) {
+    fn step(&mut self, step: &HexStep) {
         match step {
             HexStep::N => self.1 += 1,
-            HexStep::NE =>{ self.0 += 1; self.1 += 1 },
+            HexStep::NE => {
+                self.0 += 1;
+                self.1 += 1
+            }
             HexStep::SE => self.0 += 1,
             HexStep::S => self.1 -= 1,
-            HexStep::SW => {self.0 -= 1; self.1 -= 1},
+            HexStep::SW => {
+                self.0 -= 1;
+                self.1 -= 1
+            }
             HexStep::NW => self.0 -= 1,
         }
     }
 
-    fn hex_norm(&self) -> i32{
+    fn hex_norm(&self) -> i32 {
         let x = self.0;
         let y = self.1;
         if x.signum() != y.signum() {
@@ -54,7 +62,14 @@ impl HexCoord {
 }
 fn solve_day(steps: &Path) -> (i32, i32) {
     let mut start = HexCoord::new();
-    let max_d = steps.iter().map(|step| { start.step(step); start.hex_norm() }).max().unwrap_or_default();
+    let max_d = steps
+        .iter()
+        .map(|step| {
+            start.step(step);
+            start.hex_norm()
+        })
+        .max()
+        .unwrap_or_default();
     (start.hex_norm(), max_d)
 }
 
@@ -87,4 +102,3 @@ mod tests {
         assert_eq!(solve_day(&i4).0, 3);
     }
 }
-

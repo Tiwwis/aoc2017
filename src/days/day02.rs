@@ -13,13 +13,16 @@ fn parse_input(s: DayString) -> Spreadsheet {
 }
 
 fn solve_part1(sheet: &Spreadsheet) -> u32 {
-    fn row_diff(row: &Vec<u32>) -> Option<u32> {
+    fn row_diff(row: &[u32]) -> Option<u32> {
         let max = row.iter().max()?;
         let min = row.iter().min()?;
         Some(max - min)
     }
 
-    sheet.iter().map(row_diff).flatten().sum::<u32>()
+    sheet
+        .iter()
+        .filter_map(|x| row_diff(x.as_slice()))
+        .sum::<u32>()
 }
 
 fn solve_part2(sheet: &Spreadsheet) -> u32 {
@@ -38,7 +41,7 @@ fn solve_part2(sheet: &Spreadsheet) -> u32 {
         None
     }
 
-    sheet.iter().map(row_diff).flatten().sum::<u32>()
+    sheet.iter().filter_map(row_diff).sum::<u32>()
 }
 
 fn solve_string(s: DayString) -> Solution {

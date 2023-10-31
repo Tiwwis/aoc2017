@@ -1,8 +1,8 @@
 use crate::helpers;
 use crate::helpers::{DayString, Solution};
 
-use std::str::FromStr;
 use std::collections::hash_map::HashMap;
+use std::str::FromStr;
 
 use regex::Regex;
 
@@ -11,28 +11,37 @@ type Program = Vec<Instruction>;
 type MemTable = HashMap<Reg, i32>;
 
 #[derive(Clone, Copy)]
-enum Operation { Inc, Dec }
+enum Operation {
+    Inc,
+    Dec,
+}
 
 #[derive(Clone, Copy)]
-enum Cond { Eq, Leq, Lt, Gt, Geq, Neq }
+enum Cond {
+    Eq,
+    Leq,
+    Lt,
+    Gt,
+    Geq,
+    Neq,
+}
 
 impl FromStr for Operation {
     type Err = ();
 
-    fn from_str(s:&str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "inc" => Ok(Operation::Inc),
             "dec" => Ok(Operation::Dec),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
 
-
 impl FromStr for Cond {
     type Err = ();
 
-    fn from_str(s:&str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "==" => Ok(Cond::Eq),
             "<=" => Ok(Cond::Leq),
@@ -40,30 +49,32 @@ impl FromStr for Cond {
             ">=" => Ok(Cond::Geq),
             ">" => Ok(Cond::Gt),
             "!=" => Ok(Cond::Neq),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
 
 struct Instruction {
-    target : Reg,
-    op : Operation,
-    by : i32,
-    cond : Cond,
-    cmp_targ : Reg,
-    cmp_val : i32,
+    target: Reg,
+    op: Operation,
+    by: i32,
+    cond: Cond,
+    cmp_targ: Reg,
+    cmp_val: i32,
 }
 
 struct Memory {
-    table: MemTable
+    table: MemTable,
 }
 
 impl Memory {
     fn new() -> Memory {
-        Memory { table:MemTable::new() }
+        Memory {
+            table: MemTable::new(),
+        }
     }
 
-    fn run_instruction(&mut self, cmd:&Instruction) -> Option<i32>{
+    fn run_instruction(&mut self, cmd: &Instruction) -> Option<i32> {
         let cmp_targ = *self.table.entry(cmd.cmp_targ).or_default();
         let cond = cmd.cond;
         let cmp_val = cmd.cmp_val;
@@ -91,8 +102,7 @@ impl Memory {
 }
 
 fn parse_input(s: DayString) -> Program {
-
-    let mut v:Program = Vec::new();
+    let mut v: Program = Vec::new();
 
     let re = Regex::new(r"(?m)^(?P<tar>\w+) (?P<op>inc|dec) (?P<by>(?:-)?\d+) if (?P<cpt>\w+) (?P<cmp>==|<|<=|>|>=|!=) (?P<cpv>(?:-)?\d+)$").unwrap();
     for cap in re.captures_iter(s) {
@@ -103,7 +113,14 @@ fn parse_input(s: DayString) -> Program {
         let cond = cap.name("cmp").unwrap().as_str().parse().unwrap();
         let cmp_val = cap.name("cpv").unwrap().as_str().parse().unwrap();
 
-        v.push(Instruction { target, op, by, cmp_targ, cond, cmp_val });
+        v.push(Instruction {
+            target,
+            op,
+            by,
+            cmp_targ,
+            cond,
+            cmp_val,
+        });
     }
 
     v
@@ -111,7 +128,11 @@ fn parse_input(s: DayString) -> Program {
 
 fn solve_day(input: &Program) -> (i32, i32) {
     let mut mem = Memory::new();
-    let part2 = input.iter().filter_map(|instr| mem.run_instruction(instr)).max().unwrap_or_default();
+    let part2 = input
+        .iter()
+        .filter_map(|instr| mem.run_instruction(instr))
+        .max()
+        .unwrap_or_default();
     let part1 = mem.table.values().max().copied().unwrap_or_default();
     (part1, part2)
 }
@@ -133,7 +154,6 @@ mod tests {
     #[test]
     fn test_parts() {
         let input = parse_input(helpers::read_example("08"));
-        assert_eq!(solve_day(&input), (1,10));
+        assert_eq!(solve_day(&input), (1, 10));
     }
 }
-
