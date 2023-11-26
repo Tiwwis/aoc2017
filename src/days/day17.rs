@@ -73,7 +73,7 @@ fn solve_part2(n: usize) -> usize {
         if remain > 0 {n_iters += 1};
 
         let n_iter_before = n_iters - 1;
-        rel_to = rel_to + n_iter_before*(n+1);
+        rel_to += n_iter_before*(n+1);
 
         i += n_iter_before;
         rel_to = (rel_to + n)%i + 1;

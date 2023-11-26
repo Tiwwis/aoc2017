@@ -37,15 +37,15 @@ fn run_day(day: u8) {
 
 fn get_day_solver(day: u8) -> Option<fn() -> Solution> {
     match day {
-        1 => Some(day01::solve),
-        2 => Some(day02::solve),
-        3 => Some(day03::solve),
-        4 => Some(day04::solve),
-        5 => Some(day05::solve),
-        6 => Some(day06::solve),
-        7 => Some(day07::solve),
-        8 => Some(day08::solve),
-        9 => Some(day09::solve),
+        1  => Some(day01::solve),
+        2  => Some(day02::solve),
+        3  => Some(day03::solve),
+        4  => Some(day04::solve),
+        5  => Some(day05::solve),
+        6  => Some(day06::solve),
+        7  => Some(day07::solve),
+        8  => Some(day08::solve),
+        9  => Some(day09::solve),
         10 => Some(day10::solve),
         11 => Some(day11::solve),
         12 => Some(day12::solve),
@@ -55,6 +55,9 @@ fn get_day_solver(day: u8) -> Option<fn() -> Solution> {
         16 => Some(day16::solve),
         17 => Some(day17::solve),
         18 => Some(day18::solve),
+        19 => Some(day19::solve),
+        20 => Some(day20::solve),
+        21 => Some(day21::solve),
         _ => None,
     }
 }

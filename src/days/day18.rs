@@ -44,19 +44,19 @@ impl Memory {
 }
 
 #[derive(Debug)]
-struct CPU {
+struct Cpu {
     program: Program,
     pointer: usize,
     memory: Memory,
     last_sound: i128,
     channel: Option<(mpsc::Sender<i128>, mpsc::Receiver<i128>)>,
-    name: String,
+    _name: String,
 }
 
 #[derive(Debug, Clone, Copy)]
 enum Value {
-    CONST(i128),
-    REG(Reg),
+    Const(i128),
+    Reg(Reg),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -66,35 +66,35 @@ struct Reg {
 
 #[derive(Debug, Clone, Copy)]
 enum Command {
-    SND(Value),
-    SET(Reg, Value),
-    ADD(Reg, Value),
-    MUL(Reg, Value),
-    MOD(Reg, Value),
-    RCV(Reg),
-    JGZ(Value, Value),
+    Snd(Value),
+    Set(Reg, Value),
+    Add(Reg, Value),
+    Mul(Reg, Value),
+    Mod(Reg, Value),
+    Rcv(Reg),
+    Jgz(Value, Value),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Status {
-    DONE,
-    RCV(i128),
-    SENDING,
-    RUNNING,
-    WAITING,
-    CANCELLED,
+    Done,
+    Rcv(i128),
+    Sending,
+    Running,
+    Waiting,
+    Cancelled,
 }
 
-impl CPU {
-    fn new(program: Program, name: String) -> CPU {
+impl Cpu {
+    fn new(program: Program, name: String) -> Cpu {
         let memory = Memory::new(0);
-        CPU {
+        Cpu {
             program,
             pointer: 0,
             memory,
             last_sound: 0,
             channel: None,
-            name,
+            _name: name,
         }
     }
 
@@ -103,7 +103,7 @@ impl CPU {
         val: i128,
         chan: (mpsc::Sender<i128>, mpsc::Receiver<i128>),
         name: String,
-    ) -> CPU {
+    ) -> Cpu {
         let mut cpu = Self::new(program, name);
         cpu.memory[P]=val;
         cpu.channel = Some(chan);
@@ -112,87 +112,87 @@ impl CPU {
 
     fn compute_step(&mut self) -> Status {
         let program = &self.program;
-        let pointer = self.pointer.clone();
+        let pointer = self.pointer;
         self.pointer += 1;
 
         match program.get(pointer).copied() {
-            Some(Command::SND(val)) => {
+            Some(Command::Snd(val)) => {
                 let loc = self.get_value(val);
                 //println!("{}, {}", loc, &self.name);
                 if let Some((tx, _)) = &self.channel {
                     tx.send(loc).unwrap();
-                    return Status::SENDING;
+                    return Status::Sending;
                 }
                 self.last_sound = loc;
-                Status::RUNNING
+                Status::Running
             }
-            Some(Command::SET(reg, val)) => {
+            Some(Command::Set(reg, val)) => {
                 let val = self.get_value(val);
                 self.memory[reg] = val;
-                Status::RUNNING
+                Status::Running
             }
-            Some(Command::ADD(reg, val)) => {
+            Some(Command::Add(reg, val)) => {
                 let val = self.get_value(val);
                 self.memory[reg] += val;
-                Status::RUNNING
+                Status::Running
             }
 
-            Some(Command::MUL(reg, val)) => {
+            Some(Command::Mul(reg, val)) => {
                 let val = self.get_value(val);
                 self.memory[reg] *= val;
-                Status::RUNNING
+                Status::Running
             }
 
-            Some(Command::MOD(reg, val)) => {
+            Some(Command::Mod(reg, val)) => {
                 let val = self.get_value(val);
                 self.memory[reg] %= val;
-                Status::RUNNING
+                Status::Running
             }
-            Some(Command::RCV(reg)) => {
+            Some(Command::Rcv(reg)) => {
                 if let Some((_, rx)) = &self.channel {
                     match rx.recv_timeout(WAIT) {
                         Ok(v) => {
                             self.memory[reg] = v;
-                            return Status::WAITING;
+                            return Status::Waiting;
                         }
-                        Err(_) => return Status::CANCELLED,
+                        Err(_) => return Status::Cancelled,
                     }
                 }
                 let val = self.memory[reg];
                 if val != 0 {
-                    Status::RCV(self.last_sound)
+                    Status::Rcv(self.last_sound)
                 } else {
-                    Status::RUNNING
+                    Status::Running
                 }
             }
 
-            Some(Command::JGZ(cond, val)) => {
+            Some(Command::Jgz(cond, val)) => {
                 let cond = self.get_value(cond);
                 let val = self.get_value(val);
                 if cond > 0 {
                     self.pointer = ((self.pointer as i128) + val - 1) as usize;
                 }
-                Status::RUNNING
+                Status::Running
             }
-            _ => Status::DONE,
+            _ => Status::Done,
         }
     }
 
     fn get_value(&self, val: Value) -> i128 {
         match val {
-            Value::CONST(x) => x,
-            Value::REG(rg) => self.memory.get(rg).copied().unwrap_or_default(),
+            Value::Const(x) => x,
+            Value::Reg(rg) => self.memory.get(rg).copied().unwrap_or_default(),
         }
     }
 }
 
-impl Iterator for CPU {
+impl Iterator for Cpu {
     type Item = Status;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.compute_step() {
-            Status::DONE => None,
-            x @ _ => Some(x),
+            Status::Done => None,
+            x => Some(x),
         }
     }
 }
@@ -204,7 +204,7 @@ impl FromStr for Reg {
         let mut chars = s.chars();
         let c = chars.next().ok_or(())?;
 
-        if let Some(_) = chars.next() {
+        if chars.next().is_some() {
             return Err(());
         }
 
@@ -222,10 +222,10 @@ impl FromStr for Value {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if let Ok(x) = s.parse() {
-            return Ok(Value::CONST(x));
+            return Ok(Value::Const(x));
         }
 
-        Ok(Self::REG(s.parse()?))
+        Ok(Self::Reg(s.parse()?))
     }
 }
 
@@ -240,13 +240,13 @@ impl FromStr for Command {
         let third = words.next();
 
         match (first, second, third) {
-            (Some("snd"), Some(s), None) => Ok(Self::SND(s.parse()?)),
-            (Some("set"), Some(s1), Some(s2)) => Ok(Self::SET(s1.parse()?, s2.parse()?)),
-            (Some("add"), Some(s1), Some(s2)) => Ok(Self::ADD(s1.parse()?, s2.parse()?)),
-            (Some("mul"), Some(s1), Some(s2)) => Ok(Self::MUL(s1.parse()?, s2.parse()?)),
-            (Some("mod"), Some(s1), Some(s2)) => Ok(Self::MOD(s1.parse()?, s2.parse()?)),
-            (Some("rcv"), Some(s), None) => Ok(Self::RCV(s.parse()?)),
-            (Some("jgz"), Some(s1), Some(s2)) => Ok(Self::JGZ(s1.parse()?, s2.parse()?)),
+            (Some("snd"), Some(s), None) => Ok(Self::Snd(s.parse()?)),
+            (Some("set"), Some(s1), Some(s2)) => Ok(Self::Set(s1.parse()?, s2.parse()?)),
+            (Some("add"), Some(s1), Some(s2)) => Ok(Self::Add(s1.parse()?, s2.parse()?)),
+            (Some("mul"), Some(s1), Some(s2)) => Ok(Self::Mul(s1.parse()?, s2.parse()?)),
+            (Some("mod"), Some(s1), Some(s2)) => Ok(Self::Mod(s1.parse()?, s2.parse()?)),
+            (Some("rcv"), Some(s), None) => Ok(Self::Rcv(s.parse()?)),
+            (Some("jgz"), Some(s1), Some(s2)) => Ok(Self::Jgz(s1.parse()?, s2.parse()?)),
             _ => Err(()),
         }
     }
@@ -257,9 +257,9 @@ fn parse_input(s: DayString) -> Program {
 }
 
 fn solve_part1(input: &Program) -> i128 {
-    let mut cpu = CPU::new(input.clone(), "".to_string());
-    let result = cpu.find(|x| if let Status::RCV(_) = x { true } else { false });
-    if let Status::RCV(x) = result.expect("should receive once!") {
+    let mut cpu = Cpu::new(input.clone(), "".to_string());
+    let result = cpu.find(|x| matches!(x, Status::Rcv(_)));
+    if let Status::Rcv(x) = result.expect("should receive once!") {
         return x;
     }
     panic!("should be received!")
@@ -273,28 +273,26 @@ fn solve_part2(input: &Program) -> usize {
     let input1 = input.clone();
 
     let thread0 = thread::spawn(move || {
-        let cpu0 = CPU::new_multi(input0, 0, (t0, r0), "cpu0".to_string());
-        println!("HELLO FROM THREAD 0");
+        let cpu0 = Cpu::new_multi(input0, 0, (t0, r0), "cpu0".to_string());
         let mut count = 0;
         for status in cpu0 {
             match status {
-                Status::SENDING => { count+= 1; },
-                Status::CANCELLED => break,
-                _ => { () },
+                Status::Sending => { count+= 1; },
+                Status::Cancelled => break,
+                _ => (),
             }
         }
         count
     });
 
     let thread1 = thread::spawn(move || {
-        let cpu1 = CPU::new_multi(input1, 1, (t1, r1), "cpu1".to_string());
+        let cpu1 = Cpu::new_multi(input1, 1, (t1, r1), "cpu1".to_string());
         let mut count = 0;
-        println!("HELLO FROM THREAD 1");
         for status in cpu1 {
             match status {
-                Status::SENDING => { count+= 1; },
-                Status::CANCELLED => break,
-                _ => { () },
+                Status::Sending => { count+= 1; },
+                Status::Cancelled => break,
+                _ => (),
             }
         };
         count

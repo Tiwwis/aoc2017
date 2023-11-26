@@ -58,7 +58,7 @@ impl FromStr for Move {
         let rest = &s[1..];
 
         match s.chars().next() {
-            Some('s') => rest.parse().map(|x| Move::Spin(x)).map_err(|_| ()),
+            Some('s') => rest.parse().map(Move::Spin).or(Err(())),
             Some('x') => { 
                 let (x,y) = rest.split_once('/').ok_or(())?;
                 let x = x.parse().map_err(|_| ())?;
